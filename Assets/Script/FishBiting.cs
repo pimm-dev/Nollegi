@@ -16,19 +16,20 @@ public class FishBiting : MonoBehaviour
 
 
     public AudioClip biteSound;  // 물고기 뜯어먹기 사운드 클립
-    private AudioSource audioSource;  // 오디오 소스 참조
+    [SerializeField] private AudioSource audioSource;  // 오디오 소스 참조를 인스펙터에서 할당할 수 있도록
 
     private GameObject detectedFish = null;  // 탐지된 물고기
     private MaterialPropertyBlock propBlock;  // Material Property Block 선언
     private Color originalColor;  // 원래 색상 저장 변수
     
+    private GameOverManager gameOverManager;
+
 
     void Start()
     {
         // MaterialPropertyBlock 초기화
         propBlock = new MaterialPropertyBlock();
-            // AudioSource 초기화
-        audioSource = GetComponent<AudioSource>();
+        gameOverManager = FindObjectOfType<GameOverManager>();  // GameOverManager 참조 가져오기
     }
 
     void Update()
@@ -63,28 +64,34 @@ public class FishBiting : MonoBehaviour
     // 물고기를 뜯어먹는 함수
     void BiteFish(GameObject fish)
     {
-        Debug.Log(fish.name + " 물고기의 살점을 뜯어먹었습니다.");
-
-        // 허기 수치 증가
-        hungerManager.IncreaseHunger(20.0f);
-
-         // 불쾌 지수 증가 (적응도 적용)
-        float angerIncreaseAmount = Random.Range(5.0f, 10.0f) * trustManager.GetAngerAdaptationRate();
-        angerManager.IncreaseAnger(angerIncreaseAmount * trustManager.GetTrustModifier());
-
-
-        comfortManager.DecreaseComfort(angerIncreaseAmount);
-
-        // 쾌락적응 적용 (불쾌 행동으로 처리)
-        trustManager.ApplyAdaptation(false);  // false = 불쾌 행동
-
-        trustManager.ApplyTrustSystem();  // 신뢰/불신 시스템 적용
-
-        // 효과음 재생
-        if (biteSound != null)
+        if (gameOverManager != null && gameOverManager.IsGameOver())
         {
-            audioSource.PlayOneShot(biteSound);
+            return;  // 게임 오버 상태일 경우 물고기 뜯어먹기 무시
         }
+        else {
+            Debug.Log(fish.name + " 물고기의 살점을 뜯어먹었습니다.");
 
+            // 허기 수치 증가
+            hungerManager.IncreaseHunger(20.0f);
+
+            // 불쾌 지수 증가 (적응도 적용)
+            float angerIncreaseAmount = Random.Range(5.0f, 10.0f) * trustManager.GetAngerAdaptationRate();
+            angerManager.IncreaseAnger(angerIncreaseAmount * trustManager.GetTrustModifier());
+
+
+            comfortManager.DecreaseComfort(angerIncreaseAmount);
+
+            // 쾌락적응 적용 (불쾌 행동으로 처리)
+            trustManager.ApplyAdaptation(false);  // false = 불쾌 행동
+
+            trustManager.ApplyTrustSystem();  // 신뢰/불신 시스템 적용
+
+            // 효과음 재생
+            if (biteSound != null)
+            {
+                audioSource.PlayOneShot(biteSound);
+            }
+
+        }
     }
 }

@@ -6,16 +6,17 @@ TagManager:
   tags:
   - Parasite
   - Fish
+  - Boundary
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
   - Parasite
   - FishLayer
-  - 
+  - Boundary
   - 
   - 
   - 

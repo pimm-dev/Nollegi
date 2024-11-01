@@ -36,13 +36,9 @@ public class TrustManager : MonoBehaviour
             trustModifier = 0.8f;  // 불쾌 지수 상승폭 1.2배 감소 (신뢰)
         }
         // 불쾌 지수가 호감 지수의 2배 이상일 경우
-        else if (anger > 2 * comfort)
-        {
-            trustModifier = 1.2f;  // 불쾌 지수 상승폭 1.2배 증가 (불신)
-        }
         else
         {
-            trustModifier = 1.0f;  // 기본 상태
+            trustModifier = 1.2f;  // 불쾌 지수 상승폭 1.2배 증가 (불신)
         }
 
         // 신뢰/불신 상태 UI 업데이트

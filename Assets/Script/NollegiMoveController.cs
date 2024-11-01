@@ -19,7 +19,7 @@ public class NollegiMoveController : MonoBehaviour {
     private bool isBobbing = false;          // 둥실둥실 상태인지 여부
     private float bobbingTime = 0.0f;        // 둥실둥실 시간
 
-
+    [SerializeField] private AudioSource swimAudioSource; // 수영 소리
     private HungerManager hungerManager;     // HungerManager를 참조
 
     void Start() {
@@ -39,6 +39,7 @@ public class NollegiMoveController : MonoBehaviour {
     private void Initialize() {
         rb = GetComponent<Rigidbody>();
         hungerManager = FindObjectOfType<HungerManager>();  // HungerManager 스크립트 찾기
+
         rb.useGravity = false;  // 물고기는 물 속에 있으므로 중력을 사용하지 않음
 
         // X축과 Z축의 회전을 잠궈 충돌 후 뒤집어지지 않도록 함
@@ -81,9 +82,14 @@ public class NollegiMoveController : MonoBehaviour {
         if (moveDirection != Vector3.zero) {
             ApplyMovement(moveDirection);
             hungerManager.SetMovementState(true);  // 플레이어가 움직이는 중
+
+            if (!swimAudioSource.isPlaying) {
+                swimAudioSource.Play();
+            }
         } else {
             ApplySlidingEffect();
             hungerManager.SetMovementState(false);  // 플레이어가 멈춘 상태
+            swimAudioSource.Stop();
         }
     }
 
