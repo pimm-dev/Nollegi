@@ -53,4 +53,11 @@ public class ComfortManager : MonoBehaviour
             comfortText.text = "Comfort: " + comfort.ToString("F1");  // 소수점 1자리까지 표시
         }
     }
+
+    // 스테이지가 시작될 때 호출되는 함수
+    public void StartNewStage()
+    {
+        InitializeComfort();  // 새 스테이지에서 Comfort 초기화
+        UpdateComfortUI();    // UI 업데이트
+    }
 }

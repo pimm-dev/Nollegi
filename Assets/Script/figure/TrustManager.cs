@@ -107,4 +107,15 @@ public class TrustManager : MonoBehaviour
     {
         return comfortAdaptationRate;
     }
+
+    // 스테이지가 시작될 때 호출되는 함수
+    public void StartNewStage()
+    {
+        // 신뢰도 시스템 초기화
+        angerAdaptationRate = 1.0f;
+        comfortAdaptationRate = 1.0f;
+        trustModifier = 1.0f;
+
+        ApplyTrustSystem();  // 신뢰도 시스템 재적용
+    }
 }
