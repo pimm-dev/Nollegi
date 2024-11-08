@@ -31,6 +31,11 @@ public class CameraController : MonoBehaviour {
 
     void FixedUpdate()
     {
+        if (!HIDExpressionManagement.instance.isCursorFocusMode)
+        {
+            return;
+        }
+        
         HandleCameraRotation();
 
         Vector3 desiredPosition = CalculateDesiredCameraPosition();
