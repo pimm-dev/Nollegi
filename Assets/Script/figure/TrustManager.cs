@@ -46,7 +46,7 @@ public class TrustManager : MonoBehaviour
     }
 
     // 신뢰 지수를 UI에 업데이트하는 함수
-    void UpdateTrustUI()
+    public void UpdateTrustUI()
     {
         if (trustText != null)
         {

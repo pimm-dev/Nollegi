@@ -3,64 +3,99 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;  // UI 기능을 사용하기 위해 추가
 
-public class StageManager : MonoBehaviour
+public class Stage : MonoBehaviour
 {
     public ComfortManager comfortManager;  // ComfortManager 참조
     public TrustManager trustManager;  // TrustManager 참조
     public AngerManager angerManager;  
     public GuestFishMovement guestFishMovement;  
-    public Button nextStageButton;  // UI Button 참조
     public Button endStageButton;  // 스테이지 종료 버튼 참조
+
+    public GuestFishMovement[] guestFishes; // 손님 물고기 배열
+    private Dictionary<GuestFishMovement, GuestFishData> fishDataMap = new Dictionary<GuestFishMovement, GuestFishData>();
+    private GuestFishMovement currentGuestFish; // 현재 선택된 물고기
+    private GuestFishMovement previousGuestFish; // 이전에 선택된 물고기
+    
+
 
     void Start()
     {
-        // 버튼에 클릭 이벤트 리스너 추가
-        if (nextStageButton != null)
+        foreach (var fish in guestFishes)
         {
-            nextStageButton.onClick.AddListener(StartNewStage);  // 버튼 클릭 시 StartNewStage() 호출
+            if (!fishDataMap.ContainsKey(fish))
+            {
+                var data = new GuestFishData(
+                    fish.gameObject.name,                  // 물고기 이름
+                    Random.Range(40.0f, 60.0f),           // Comfort 값
+                    Random.Range(0.0f, 20.0f)             // Anger 값
+                );
+
+                fishDataMap.Add(fish, data);
+                Debug.Log($"Initialized data for {fish.gameObject.name}: Comfort={data.comfortValue}, Anger={data.angerValue}");
+            }
         }
 
        if (endStageButton != null)
         {
             endStageButton.onClick.AddListener(EndCurrentStage);  // 버튼 클릭 시 EndCurrentStage() 호출
         }
+
+        StartNewStage();
     }
 
-    // 새로운 스테이지를 시작하는 함수
-    void StartNewStage()
+        // 새로운 스테이지를 시작하는 함수
+    public void StartNewStage()
     {
-        if (comfortManager != null)
+        if (guestFishes == null || guestFishes.Length == 0)
         {
-            comfortManager.StartNewStage();  // ComfortManager의 StartNewStage() 호출
+            Debug.LogWarning("손님 물고기 배열이 비어 있습니다.");
+            return;
         }
 
-        if (angerManager != null)
+        List<GuestFishMovement> availableFishes = new List<GuestFishMovement>(guestFishes);
+
+        if (previousGuestFish != null)
         {
-            angerManager.StartNewStage(); 
+            availableFishes.Remove(previousGuestFish);
         }
 
-        if (trustManager != null)
+        int randomIndex = Random.Range(0, availableFishes.Count);
+        currentGuestFish = availableFishes[randomIndex];
+        previousGuestFish = currentGuestFish;
+
+        // 선택된 물고기의 ParasiteManager 관리
+        ParasiteManager parasiteManager = currentGuestFish.GetComponent<ParasiteManager>();
+        if (parasiteManager != null)
         {
-            trustManager.StartNewStage();  // TrustManager의 StartNewStage() 호출
+            parasiteManager.ClearParasites(); // 기존 기생충 삭제
+            parasiteManager.SpawnParasites(); // 새로 생성
         }
 
-        if (guestFishMovement != null)
+         // 선택된 물고기의 데이터를 ComfortManager 등에 전달
+        if (fishDataMap.TryGetValue(currentGuestFish, out GuestFishData data))
         {
-            guestFishMovement.StartEnteringStage();  
+            comfortManager.comfort = data.comfortValue;
+            angerManager.anger = data.angerValue;
         }
 
-
-        Debug.Log("New stage started!");
+        currentGuestFish.StartEnteringStage();
+        comfortManager.StartNewStage();
+        angerManager.StartNewStage();
+        trustManager.StartNewStage();
+        Debug.Log($"New stage started with guest fish: {currentGuestFish.gameObject.name}");
     }
 
     // 현재 스테이지를 종료하는 함수
     void EndCurrentStage()
     {
-        if (guestFishMovement != null)
+       if (currentGuestFish != null && fishDataMap.TryGetValue(currentGuestFish, out GuestFishData data))
         {
-            guestFishMovement.StartExitingStage();  // 
+            // Manager의 값을 데이터에 저장
+            data.UpdateValues(comfortManager.comfort, angerManager.anger);
+            Debug.Log($"Current stage ended for guest fish: {currentGuestFish.gameObject.name}");
         }
+        currentGuestFish.StartExitingStage();
 
-        Debug.Log("Current stage ended!");
+        StartNewStage();
     }
 }

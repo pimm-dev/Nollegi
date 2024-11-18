@@ -13,18 +13,9 @@ public class GuestFishMovement : MonoBehaviour
     private float exitTimer = 0.0f;
     private Vector3 exitDirection;  // 무작위로 설정된 이동 방향
     public float exitDuration = 5.0f;  // 스테이지 종료 후 이동 시간 (초 단위)
+    
 
-
-
-    private Vector3[] initialPositions = new Vector3[]
-    {
-        new Vector3(0, -10, -30),
-        new Vector3(-24, 2, -23),
-        new Vector3(-49, -12, -33),
-        new Vector3(-55, -11, 20),
-        new Vector3(-55, -11, -32),
-        new Vector3(-24, -19, -23)
-    };
+    private Vector3[] initialPositions;
 
     void Start()
     {
@@ -40,6 +31,9 @@ public class GuestFishMovement : MonoBehaviour
         {
             Debug.LogError("레이어 설정을 확인하세요: GuestFish 또는 Obstacle 레이어가 존재하지 않습니다.");
         }
+
+        // (0, 0, 0) 기준으로 거리 20에 있는 랜덤 좌표 설정 (Y 좌표는 0)
+        GenerateInitialPositions();
 
         // 랜덤한 시작 위치 설정
         int randomIndex = Random.Range(0, initialPositions.Length);
@@ -74,7 +68,7 @@ public class GuestFishMovement : MonoBehaviour
         Debug.Log("StartExitingStage() 호출됨: 이동 시작");
     }
 
-
+    
     // 주인공을 중심으로 궤도를 그리면서 이동하는 함수
     void MoveTowardsProtagonist()
     {
@@ -86,60 +80,84 @@ public class GuestFishMovement : MonoBehaviour
         // 주인공과의 최소 거리를 유지하면서 이동
         if (distanceToProtagonist > minDistanceFromProtagonist)
         {
-            // 주인공을 중심으로 궤도를 그리며 회전
             transform.RotateAround(protagonistPosition, Vector3.up, rotationSpeed * Time.deltaTime);
 
-            // 목표를 향해 점점 안쪽으로 이동하는 로직 추가 (단, 최소 거리 유지)
             Vector3 directionToCenter = (protagonistPosition - transform.position).normalized;
             transform.position += directionToCenter * inwardMoveSpeed * Time.deltaTime;
 
-            // 목표 Y 좌표로 점진적으로 이동 (수직 방향 이동)
             Vector3 newPosition = transform.position;
             newPosition.y = Mathf.MoveTowards(transform.position.y, protagonistPosition.y, moveSpeed * Time.deltaTime);
             transform.position = newPosition;
 
-            // 목표 위치를 향해 회전
             Quaternion targetRotation = Quaternion.LookRotation(protagonistPosition - transform.position);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
         else
         {
-            // 주인공과의 최소 거리를 깨면 멈춤
             isMoving = false;
             Debug.Log("Fish has stopped due to breaking the minimum distance from protagonist.");
         }
     }
 
- // 스테이지가 끝날 때 무작위 방향으로 직진하여 그라운드를 빠져나가는 함수
-    void ExitStage()
+    // 스테이지가 끝날 때 무작위 방향으로 직진하여 그라운드를 빠져나가는 함수
+   void ExitStage()
     {
-        // 주어진 시간 동안 무작위 방향으로 이동
-        if (exitTimer < exitDuration)
+    // (0, 0, 0) 기준으로 이동 범위를 설정
+    Vector3 protagonistPosition = new Vector3(0, 0, 0);
+    float minDistance = 50.0f;
+    float maxDistance = 60.0f;
+
+    if (exitTimer < exitDuration)
+    {
+        Quaternion targetRotation = Quaternion.LookRotation(exitDirection, Vector3.up);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime * 100);
+
+        if (Quaternion.Angle(transform.rotation, targetRotation) < 1.0f)
         {
-            // 이동할 방향을 먼저 설정하고 그 방향으로 회전
-            Quaternion targetRotation = Quaternion.LookRotation(exitDirection, Vector3.up);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime * 100);
-
-            // 회전이 목표 방향에 거의 맞춰졌을 때 X축 방향으로 이동
-            if (Quaternion.Angle(transform.rotation, targetRotation) < 1.0f)
-            {
-                // X축 방향을 기준으로 이동하도록 수정
-                transform.position -= transform.right * moveSpeed * Time.deltaTime;
-            }
-
-            // Y 좌표를 유지하도록 설정 (지면 위를 유지)
-            Vector3 newPosition = transform.position;
-            newPosition.y = Mathf.Clamp(newPosition.y, -10.0f, 10.0f);  // Y 값의 범위를 제한하여 너무 높거나 낮지 않도록 설정
-            transform.position = newPosition;
-
-            // 이동 시간 누적
-            exitTimer += Time.deltaTime;
+            transform.position -= transform.right * moveSpeed * Time.deltaTime;
         }
-        else
+
+        // 현재 위치에서 Y 좌표를 유지하며 업데이트
+        Vector3 newPosition = transform.position;
+        newPosition.y = 0.0f;
+        transform.position = newPosition;
+
+        exitTimer += Time.deltaTime;
+    }
+    else
+    {
+        // ExitStage 종료 후, 랜덤한 위치로 배치
+        isExiting = false;
+
+        // (0, 0, 0)을 중심으로 45~60 거리 내의 랜덤 위치 계산
+        float randomDistance = Random.Range(minDistance, maxDistance);
+        float randomAngle = Random.Range(0, Mathf.PI * 2);
+
+        float x = randomDistance * Mathf.Cos(randomAngle);
+        float z = randomDistance * Mathf.Sin(randomAngle);
+
+        transform.position = new Vector3(x, 0, z);
+
+        Debug.Log($"ExitStage 종료: 물고기가 새로운 위치로 이동: {transform.position}");
+    }
+    }
+
+    // (0, 0, 0) 기준으로 거리 20에 있는 랜덤 좌표 생성 (Y 좌표는 항상 0)
+    void GenerateInitialPositions()
+    {
+        float minDistance = 50.0f;
+        float maxDistance = 60.0f;
+        initialPositions = new Vector3[6];
+        for (int i = 0; i < initialPositions.Length; i++)
         {
-            // 일정 시간이 지나면 이동 중지
-            isExiting = false;
-            Debug.Log("ExitStage() 종료: 물고기가 그라운드를 빠져나감.");
+            float angle = Random.Range(0, Mathf.PI * 2); // 랜덤한 각도 (라디안 단위)
+            float randomDistance = Random.Range(minDistance, maxDistance);
+
+            // X와 Z 좌표는 원 위의 랜덤 위치를 계산
+            float x = randomDistance * Mathf.Cos(angle);
+            float z = randomDistance * Mathf.Sin(angle);
+
+            initialPositions[i] = new Vector3(x, 0, z); // Y 좌표는 0으로 고정
         }
     }
 }
