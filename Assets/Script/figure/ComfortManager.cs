@@ -9,14 +9,7 @@ public class ComfortManager : MonoBehaviour
 
     void Start()
     {
-        InitializeComfort();  // 초기값 설정
         UpdateComfortUI();    // 게임 시작 시 UI 업데이트
-    }
-
-    // 초기값을 난수로 설정하는 함수
-    void InitializeComfort()
-    {
-        comfort = Random.Range(40.0f, 60.0f);  // 40~60 사이의 난수값 설정
     }
 
     // Comfort 지수를 증가시키는 함수
@@ -57,7 +50,6 @@ public class ComfortManager : MonoBehaviour
     // 스테이지가 시작될 때 호출되는 함수
     public void StartNewStage()
     {
-        InitializeComfort();  // 새 스테이지에서 Comfort 초기화
         UpdateComfortUI();    // UI 업데이트
     }
 }

@@ -9,15 +9,12 @@ public class AngerManager : MonoBehaviour
     
     void Start()
     {
-        // 0과 20 사이의 난수로 Anger 초기값 설정
-        anger = Random.Range(0.0f, 20.0f);
         UpdateAngerUI();  // 게임 시작 시 UI 업데이트
     }
 
     // 새로운 스테이지 시작 시 호출되는 함수
     public void StartNewStage()
     {
-        anger = Random.Range(0.0f, 20.0f);  // 새로운 스테이지의 초기 Anger 값을 설정
         UpdateAngerUI();  // UI 업데이트
     }
 
