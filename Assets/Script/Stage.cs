@@ -46,12 +46,6 @@ public class Stage : MonoBehaviour
         // 새로운 스테이지를 시작하는 함수
     public void StartNewStage()
     {
-        if (guestFishes == null || guestFishes.Length == 0)
-        {
-            Debug.LogWarning("손님 물고기 배열이 비어 있습니다.");
-            return;
-        }
-
         List<GuestFishMovement> availableFishes = new List<GuestFishMovement>(guestFishes);
 
         if (previousGuestFish != null)
@@ -65,11 +59,8 @@ public class Stage : MonoBehaviour
 
         // 선택된 물고기의 ParasiteManager 관리
         ParasiteManager parasiteManager = currentGuestFish.GetComponent<ParasiteManager>();
-        if (parasiteManager != null)
-        {
-            parasiteManager.ClearParasites(); // 기존 기생충 삭제
-            parasiteManager.SpawnParasites(); // 새로 생성
-        }
+        parasiteManager.ClearParasites(); // 기존 기생충 삭제
+        parasiteManager.SpawnParasites(); // 새로 생성
 
          // 선택된 물고기의 데이터를 ComfortManager 등에 전달
         if (fishDataMap.TryGetValue(currentGuestFish, out GuestFishData data))

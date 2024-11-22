@@ -11,7 +11,7 @@ public class ParasiteManager : MonoBehaviour
     private List<GameObject> parasites = new List<GameObject>(); // 기생충 리스트
     private Mesh fishMesh; // 물고기 Mesh 데이터
 
-    void Start()
+    void InitializeFishMesh()
     {
         // 물고기 Mesh 가져오기
         MeshFilter fishMeshFilter = GetComponent<MeshFilter>();
@@ -35,6 +35,9 @@ public class ParasiteManager : MonoBehaviour
     // 기생충 생성 및 물고기 표면에 부착
     public void SpawnParasites()
     {
+
+        InitializeFishMesh(); 
+
         ClearParasites();
 
         if (fishMesh == null)
