@@ -21,7 +21,6 @@ public class ComfortManager : MonoBehaviour
             comfort = maxComfort;  // Comfort 지수는 최대값을 넘지 않도록 설정
         }
 
-        Debug.Log("현재 Comfort 지수: " + comfort);
         UpdateComfortUI();  // Comfort 지수가 변경될 때마다 UI 업데이트
     }
 
@@ -34,7 +33,6 @@ public class ComfortManager : MonoBehaviour
             comfort = 0;  // Comfort 지수는 0 이하로 떨어지지 않도록 설정
         }
 
-        Debug.Log("현재 Comfort 지수: " + comfort);
         UpdateComfortUI();  // Comfort 지수가 변경될 때마다 UI 업데이트
     }
 

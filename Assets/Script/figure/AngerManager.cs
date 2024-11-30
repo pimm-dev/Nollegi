@@ -26,8 +26,6 @@ public class AngerManager : MonoBehaviour
         {
             anger = maxAnger;  // Anger 지수는 최대값을 넘지 않도록 설정
         }
-
-        Debug.Log("현재 Anger 지수: " + anger);
         UpdateAngerUI();  // Anger 지수가 변경될 때마다 UI 업데이트
     }
 
@@ -39,8 +37,6 @@ public class AngerManager : MonoBehaviour
         {
             anger = 0;  // Comfort 지수는 0 이하로 떨어지지 않도록 설정
         }
-
-        Debug.Log("현재 Anger 지수: " + anger);
         UpdateAngerUI();  // Comfort 지수가 변경될 때마다 UI 업데이트
     }
 

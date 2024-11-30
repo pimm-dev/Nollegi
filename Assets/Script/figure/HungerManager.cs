@@ -10,6 +10,7 @@ public class HungerManager : MonoBehaviour
 
     public float baseHungerDecreaseRate = 1.0f;  // 기본 허기 감소 속도
     public float movementHungerDecreaseRate = 2.0f;  // 움직일 때 허기 감소 속도
+    private float decreaseMultiplier = 1.0f; // 허기 감소 배율 (기본값 1.0)
     private float movementTime = 0.0f;  // 누적된 움직임 시간
     private bool isMoving = false;  // 플레이어가 움직이는지 여부
     private bool isDebuffActive = false;  // 디버프 활성화 여부
@@ -24,7 +25,7 @@ public class HungerManager : MonoBehaviour
 
     void Update()
         {
-            float decreaseRate = baseHungerDecreaseRate;  // 기본 허기 감소 속도
+            float decreaseRate = baseHungerDecreaseRate * decreaseMultiplier;  // 기본 허기 감소 속도
 
             // 플레이어가 움직이고 있을 경우
             if (isMoving)
@@ -107,5 +108,11 @@ public class HungerManager : MonoBehaviour
     void UpdateHungerUI()
     {
         hungerText.text = "Hunger: " + hunger.ToString("F1");
+    }
+
+    public void SetHungerDecreaseMultiplier(float multiplier)
+    {
+        decreaseMultiplier = multiplier; // 감소 배율 업데이트
+        
     }
 }

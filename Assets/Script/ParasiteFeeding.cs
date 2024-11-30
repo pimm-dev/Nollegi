@@ -85,7 +85,6 @@ public class ParasiteFeeding : MonoBehaviour
             return;  // 게임 오버 상태이므로 입력 무시
         }
         else {
-            Debug.Log(parasite.name + " 기생충을 먹었습니다.");
 
             // 허기 수치 증가
             hungerManager.IncreaseHunger(15.0f);

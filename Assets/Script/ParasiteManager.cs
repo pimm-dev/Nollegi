@@ -46,6 +46,13 @@ public class ParasiteManager : MonoBehaviour
             return;
         }
 
+        if (parasitePrefab == null)
+        {
+        Debug.LogError("Parasite prefab is null. Cannot spawn parasites.");
+        return;
+        }
+
+
         int parasiteCount = Random.Range(minParasiteCount, maxParasiteCount);
 
         for (int i = 0; i < parasiteCount; i++)
@@ -68,7 +75,10 @@ public class ParasiteManager : MonoBehaviour
     {
         foreach (GameObject parasite in parasites)
         {
+            if (parasite != null) // null 체크 추가
+            {
             Destroy(parasite);
+            }
         }
         parasites.Clear();
     }

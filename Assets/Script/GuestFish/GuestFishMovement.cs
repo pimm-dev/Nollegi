@@ -102,44 +102,60 @@ public class GuestFishMovement : MonoBehaviour
     // 스테이지가 끝날 때 무작위 방향으로 직진하여 그라운드를 빠져나가는 함수
    void ExitStage()
     {
-    // (0, 0, 0) 기준으로 이동 범위를 설정
-    Vector3 protagonistPosition = new Vector3(0, 0, 0);
-    float minDistance = 50.0f;
-    float maxDistance = 60.0f;
+        // (0, 0, 0) 기준으로 이동 범위를 설정
+        Vector3 protagonistPosition = new Vector3(0, 0, 0);
+        float minDistance = 50.0f;
+        float maxDistance = 60.0f;
 
-    if (exitTimer < exitDuration)
-    {
-        Quaternion targetRotation = Quaternion.LookRotation(exitDirection, Vector3.up);
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime * 100);
-
-        if (Quaternion.Angle(transform.rotation, targetRotation) < 1.0f)
+        // exitDirection이 초기화되지 않았을 경우 기본값 설정
+        if (exitDirection == Vector3.zero)
         {
-            transform.position -= transform.right * moveSpeed * Time.deltaTime;
+            Debug.LogWarning("Exit direction is zero. Setting default exit direction.");
+            exitDirection = (transform.position - protagonistPosition).normalized;
+
+            // 기본 방향도 유효하지 않다면 Vector3.forward로 설정
+            if (exitDirection == Vector3.zero)
+            {
+                exitDirection = Vector3.forward;
+            }
         }
+        
+        if (exitTimer < exitDuration)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(exitDirection, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime * 100);
 
-        // 현재 위치에서 Y 좌표를 유지하며 업데이트
-        Vector3 newPosition = transform.position;
-        newPosition.y = 0.0f;
-        transform.position = newPosition;
+            if (Quaternion.Angle(transform.rotation, targetRotation) < 1.0f)
+            {
+                transform.position -= transform.right * moveSpeed * Time.deltaTime;
 
-        exitTimer += Time.deltaTime;
-    }
-    else
-    {
-        // ExitStage 종료 후, 랜덤한 위치로 배치
-        isExiting = false;
+                // 다른 오브젝트와의 충돌을 피하기 위해 위치 조정
+                AvoidCollisionsWithObjects();
+            }
 
-        // (0, 0, 0)을 중심으로 45~60 거리 내의 랜덤 위치 계산
-        float randomDistance = Random.Range(minDistance, maxDistance);
-        float randomAngle = Random.Range(0, Mathf.PI * 2);
+            // 현재 위치에서 Y 좌표를 유지하며 업데이트
+            Vector3 newPosition = transform.position;
+            newPosition.y = 0.0f;
+            transform.position = newPosition;
 
-        float x = randomDistance * Mathf.Cos(randomAngle);
-        float z = randomDistance * Mathf.Sin(randomAngle);
+            exitTimer += Time.deltaTime;
+        }
+        else
+        {
+            // ExitStage 종료 후, 랜덤한 위치로 배치
+            isExiting = false;
 
-        transform.position = new Vector3(x, 0, z);
+            // (0, 0, 0)을 중심으로 45~60 거리 내의 랜덤 위치 계산
+            float randomDistance = Random.Range(minDistance, maxDistance);
+            float randomAngle = Random.Range(0, Mathf.PI * 2);
 
-        Debug.Log($"ExitStage 종료: 물고기가 새로운 위치로 이동: {transform.position}");
-    }
+            float x = randomDistance * Mathf.Cos(randomAngle);
+            float z = randomDistance * Mathf.Sin(randomAngle);
+
+            transform.position = new Vector3(x, 0, z);
+
+            Debug.Log($"ExitStage 종료: 물고기가 새로운 위치로 이동: {transform.position}");
+        }
     }
 
     // (0, 0, 0) 기준으로 거리 20에 있는 랜덤 좌표 생성 (Y 좌표는 항상 0)
@@ -159,5 +175,18 @@ public class GuestFishMovement : MonoBehaviour
 
             initialPositions[i] = new Vector3(x, 0, z); // Y 좌표는 0으로 고정
         }
+    }
+
+    void AvoidCollisionsWithObjects()
+    {
+    Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1.0f); // 현재 위치 주변의 충돌체 탐지
+    foreach (var collider in hitColliders)
+    {
+        if (collider.gameObject != gameObject) // 자기 자신 제외
+        {
+            Vector3 pushDirection = (transform.position - collider.transform.position).normalized;
+            transform.position += pushDirection * 0.1f; // 밀어내기
+        }
+    }
     }
 }
