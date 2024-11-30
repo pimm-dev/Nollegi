@@ -8,6 +8,7 @@ public class Stage : MonoBehaviour
     public ComfortManager comfortManager;  // ComfortManager 참조
     public TrustManager trustManager;  // TrustManager 참조
     public AngerManager angerManager;  
+    public HungerManager hungerManager; // HungerManager 참조
     public GuestFishMovement guestFishMovement;  
     public Button endStageButton;  // 스테이지 종료 버튼 참조
 
@@ -16,7 +17,10 @@ public class Stage : MonoBehaviour
     private GuestFishMovement currentGuestFish; // 현재 선택된 물고기
     private GuestFishMovement previousGuestFish; // 이전에 선택된 물고기
     
+    private int stageCounter = 0; // 현재 스테이지를 기록하는 변수
 
+    private float hungerIncreaseRatePerStage = 0.2f; // 스테이지당 허기 감소 속도 증가 비율
+    private float maxHungerDecreaseRateMultiplier = 2.0f; // 허기 감소 속도의 최대 배율
 
     void Start()
     {
@@ -46,6 +50,9 @@ public class Stage : MonoBehaviour
         // 새로운 스테이지를 시작하는 함수
     public void StartNewStage()
     {
+        stageCounter++; // 새로운 스테이지 시작 시 카운터 증가
+        Debug.Log($"Starting Stage {stageCounter}");
+
         List<GuestFishMovement> availableFishes = new List<GuestFishMovement>(guestFishes);
 
         if (previousGuestFish != null)
@@ -73,7 +80,12 @@ public class Stage : MonoBehaviour
         comfortManager.StartNewStage();
         angerManager.StartNewStage();
         trustManager.StartNewStage();
-        Debug.Log($"New stage started with guest fish: {currentGuestFish.gameObject.name}");
+
+        float newMultiplier = Mathf.Min(
+            1.0f + (stageCounter * hungerIncreaseRatePerStage), 
+            maxHungerDecreaseRateMultiplier
+        );
+        hungerManager.SetHungerDecreaseMultiplier(newMultiplier);
     }
 
     // 현재 스테이지를 종료하는 함수
