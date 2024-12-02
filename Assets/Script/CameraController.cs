@@ -30,18 +30,26 @@ public class CameraController : MonoBehaviour {
     }
 
     void LateUpdate() {
+        
+    }
+
+    void FixedUpdate()
+    {
+        HandleCameraRotation();
+
         Vector3 desiredPosition = CalculateDesiredCameraPosition();
         desiredPosition = HandleCameraCollision(desiredPosition);
         MoveCamera(desiredPosition);
     }
-
-
 
     // 카메라 회전 처리
     private void HandleCameraRotation() {
         // 마우스 입력을 받아 카메라 회전 계산
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * 0.01f;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * 0.01f;
 
         xRotation -= mouseY;  // 상하 회전
         yRotation += mouseX;  // 좌우 회전
